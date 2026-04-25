@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuemath — Step Up Training Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+/* ── CUEMATH BRAND THEME ── */
+:root {
+  --yellow:#FFB800; --yellow2:#FFA000; --yellow-light:#FFF8E1; --yellow-dim:rgba(255,184,0,0.12);
+  --dark:#0D0D0D; --dark2:#1A1A1A; --dark3:#2A2A2A;
+  --surface:#FFFFFF; --surface2:#F8F8F8; --surface3:#F2F2F2;
+  --border:#E8E8E8; --border2:#D0D0D0;
+  --text:#0D0D0D; --text2:#3D3D3D; --muted:#888888;
+  --green:#22C55E; --green-bg:rgba(34,197,94,0.1);
+  --red:#EF4444;   --red-bg:rgba(239,68,68,0.1);
+  --blue:#3B82F6;  --blue-bg:rgba(59,130,246,0.1);
+  --orange:#F97316;--orange-bg:rgba(249,115,22,0.1);
+  --purple:#8B5CF6;--purple-bg:rgba(139,92,246,0.1);
+  --radius:10px; --radius-lg:16px; --radius-xl:24px;
+  --shadow:0 2px 16px rgba(0,0,0,0.07);
+  --shadow-lg:0 8px 40px rgba(0,0,0,0.12);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Manrope',sans-serif;background:var(--surface2);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* ── LOGIN ── */
+#login-screen{position:fixed;inset:0;background:var(--dark);z-index:1000;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+.login-wrap{display:flex;width:900px;max-width:96vw;border-radius:var(--radius-xl);overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.5);}
+.login-left{flex:1;background:var(--yellow);padding:48px 40px;display:flex;flex-direction:column;justify-content:space-between;}
+.login-logo-text{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--dark);letter-spacing:-1px;}
+.login-logo-sub{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,0,0,0.5);margin-top:4px;}
+.login-hero-title{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:var(--dark);line-height:1.15;margin-top:auto;}
+.login-hero-sub{font-size:13px;color:rgba(0,0,0,0.55);margin-top:12px;line-height:1.6;}
+.login-dots{display:flex;gap:8px;margin-top:32px;}
+.login-dot{width:8px;height:8px;border-radius:50%;background:rgba(0,0,0,0.2);}
+.login-dot.active{background:var(--dark);width:24px;border-radius:4px;}
+.login-right{width:380px;background:var(--surface);padding:48px 40px;display:flex;flex-direction:column;justify-content:center;}
+.login-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--text);margin-bottom:6px;}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:32px;}
+.login-field{margin-bottom:18px;}
+.login-field label{display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+.login-field input{width:100%;background:var(--surface2);border:1.5px solid var(--border);color:var(--text);padding:11px 14px;border-radius:var(--radius);font-size:14px;font-family:'Manrope',sans-serif;outline:none;transition:border-color .2s;}
+.login-field input:focus{border-color:var(--yellow);}
+.login-btn{width:100%;padding:13px;background:var(--yellow);color:var(--dark);border:none;border-radius:var(--radius);font-size:14px;font-weight:800;cursor:pointer;font-family:'Manrope',sans-serif;transition:all .2s;letter-spacing:.3px;}
+.login-btn:hover{background:var(--yellow2);transform:translateY(-1px);}
+.login-hint{font-size:11px;color:var(--muted);text-align:center;margin-top:14px;line-height:1.6;}
+.login-err{color:var(--red);font-size:12px;text-align:center;margin-top:10px;min-height:16px;}
+
+/* ── LAYOUT ── */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:var(--dark);display:flex;flex-direction:column;z-index:100;}
+.logo-area{padding:28px 24px 22px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.logo-text{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--yellow);letter-spacing:-0.5px;}
+.logo-sub{font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-top:3px;}
+.nav-section-label{font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.3);padding:20px 24px 8px;}
+.nav-item{display:flex;align-items:center;gap:11px;padding:11px 24px;font-size:13px;color:rgba(255,255,255,0.55);cursor:pointer;transition:all .18s;border-left:3px solid transparent;user-select:none;}
+.nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.05);}
+.nav-item.active{color:var(--yellow);border-left-color:var(--yellow);background:rgba(255,184,0,0.08);font-weight:600;}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--yellow);color:var(--dark);font-size:10px;font-weight:800;padding:2px 7px;border-radius:20px;}
+.sidebar-footer{margin-top:auto;padding:20px 24px;border-top:1px solid rgba(255,255,255,0.08);}
+.user-chip{display:flex;align-items:center;gap:11px;}
+.user-av{width:34px;height:34px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--dark);flex-shrink:0;}
+.user-name{font-size:13px;font-weight:600;color:rgba(255,255,255,0.85);}
+.user-role{font-size:10px;color:rgba(255,255,255,0.35);text-transform:capitalize;}
+.logout-btn{margin-top:12px;width:100%;padding:8px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.45);border:1px solid rgba(255,255,255,0.1);border-radius:8px;font-size:12px;font-family:'Manrope',sans-serif;cursor:pointer;transition:all .2s;}
+.logout-btn:hover{background:rgba(239,68,68,0.15);color:var(--red);border-color:rgba(239,68,68,0.3);}
+
+/* ── MAIN ── */
+.main{margin-left:240px;min-height:100vh;}
+.topbar{padding:16px 28px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.page-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--text);}
+.page-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.topbar-actions{display:flex;gap:10px;align-items:center;}
+.loading-bar{height:3px;background:var(--yellow);position:fixed;top:0;left:0;z-index:999;transition:width .4s;width:0;}
+.content{padding:24px 28px;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius);font-size:13px;font-weight:700;cursor:pointer;font-family:'Manrope',sans-serif;border:none;transition:all .18s;letter-spacing:.2px;}
+.btn-primary{background:var(--yellow);color:var(--dark);}
+.btn-primary:hover{background:var(--yellow2);transform:translateY(-1px);}
+.btn-dark{background:var(--dark);color:#fff;}
+.btn-dark:hover{background:var(--dark3);}
+.btn-ghost{background:transparent;color:var(--muted);border:1.5px solid var(--border);}
+.btn-ghost:hover{color:var(--text);border-color:var(--dark);}
+.btn-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(34,197,94,.25);}
+.btn-green:hover{background:rgba(34,197,94,.2);}
+.btn-red{background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,.25);}
+.btn-red:hover{background:rgba(239,68,68,.2);}
+.btn-blue{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(59,130,246,.25);}
+.btn-blue:hover{background:rgba(59,130,246,.2);}
+.btn-sm{padding:6px 13px;font-size:12px;}
+.btn-xs{padding:4px 10px;font-size:11px;}
+
+/* ── STATS GRID ── */
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px;}
+.stat-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:20px;position:relative;overflow:hidden;cursor:default;transition:all .2s;}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);}
+.stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;}
+.stat-total::after{background:var(--yellow);}
+.stat-pending::after{background:var(--orange);}
+.stat-approved::after{background:var(--green);}
+.stat-rejected::after{background:var(--red);}
+.stat-flag::after{background:var(--purple);}
+.stat-icon{font-size:22px;margin-bottom:10px;}
+.stat-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.stat-value{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;margin:6px 0 2px;line-height:1;}
+.stat-total .stat-value{color:var(--dark);}
+.stat-pending .stat-value{color:var(--orange);}
+.stat-approved .stat-value{color:var(--green);}
+.stat-rejected .stat-value{color:var(--red);}
+.stat-flag .stat-value{color:var(--purple);}
+.stat-sub{font-size:11px;color:var(--muted);}
+
+/* ── CHARTS ROW ── */
+.charts-row{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:14px;margin-bottom:22px;}
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:20px;}
+.card-title{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.bar-label{font-size:11.5px;color:var(--text2);width:110px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bar-track{flex:1;background:var(--surface3);border-radius:4px;height:8px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;background:var(--yellow);transition:width .7s ease;}
+.bar-val{font-size:11px;font-weight:700;color:var(--text2);width:22px;text-align:right;flex-shrink:0;}
+.donut-wrap{display:flex;align-items:center;gap:18px;}
+.donut-svg{flex-shrink:0;}
+.donut-legend{display:flex;flex-direction:column;gap:8px;}
+.dl-item{display:flex;align-items:center;gap:8px;font-size:12px;}
+.dl-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.dl-pct{font-weight:700;color:var(--text);margin-left:auto;padding-left:8px;}
+
+/* ── FILTERS ── */
+.filters-bar{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;}
+.filter-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+.filter-control{background:var(--surface2);border:1.5px solid var(--border);color:var(--text);padding:7px 11px;border-radius:8px;font-size:12.5px;font-family:'Manrope',sans-serif;outline:none;transition:border-color .2s;}
+.filter-control:focus{border-color:var(--yellow);}
+.filter-search{width:210px;}
+.filter-divider{width:1px;height:22px;background:var(--border);flex-shrink:0;}
+
+/* ── TABLE ── */
+.table-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
+.table-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+.table-title{font-size:13px;font-weight:700;color:var(--text);}
+.table-meta{font-size:12px;color:var(--muted);}
+.table-scroll{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead{background:var(--surface2);}
+th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;}
+td{padding:12px 14px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tbody tr{transition:background .15s;}
+tbody tr:hover td{background:var(--yellow-dim);}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:10.5px;font-weight:700;white-space:nowrap;}
+.badge-dot{width:6px;height:6px;border-radius:50%;}
+.badge-pending{background:var(--orange-bg);color:var(--orange);}
+.badge-approved{background:var(--green-bg);color:var(--green);}
+.badge-rejected{background:var(--red-bg);color:var(--red);}
+.badge-clarification{background:var(--blue-bg);color:var(--blue);}
+.status-pause{background:#FFF3E0;color:#E65100;}
+.status-resign{background:#FCE4EC;color:#C62828;}
+.status-nonresp{background:#EDE7F6;color:#4527A0;}
+.status-failed{background:#FFEBEE;color:#B71C1C;}
+.status-back{background:#E8F5E9;color:#1B5E20;}
+.status-disq{background:#F3E5F5;color:#4A148C;}
+.flag-badge{background:var(--purple-bg);color:var(--purple);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.6;}}
+
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .25s;}
+.overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border-radius:var(--radius-xl);width:640px;max-width:96vw;max-height:92vh;overflow-y:auto;padding:36px;box-shadow:0 32px 80px rgba(0,0,0,.25);transform:translateY(20px);transition:transform .25s;}
+.overlay.open .modal{transform:translateY(0);}
+.modal-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px;}
+.modal-sub{font-size:12px;color:var(--muted);margin-bottom:28px;}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid var(--border);}
+
+/* ── FORM ── */
+.step-indicator{display:flex;align-items:center;gap:0;margin-bottom:28px;}
+.step-item{display:flex;align-items:center;flex:1;}
+.step-circle{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--muted);background:var(--surface2);flex-shrink:0;transition:all .3s;}
+.step-circle.active{border-color:var(--yellow);background:var(--yellow);color:var(--dark);}
+.step-circle.done{border-color:var(--green);background:var(--green);color:#fff;}
+.step-line{flex:1;height:2px;background:var(--border);transition:background .3s;}
+.step-line.done{background:var(--green);}
+.step-label{font-size:10px;font-weight:700;color:var(--muted);margin-top:6px;text-align:center;white-space:nowrap;}
+.step-wrap{display:flex;flex-direction:column;align-items:center;}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group.full{grid-column:1/-1;}
+.form-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.form-label span{color:var(--red);}
+.form-control{background:var(--surface2);border:1.5px solid var(--border);color:var(--text);padding:10px 13px;border-radius:var(--radius);font-size:13.5px;font-family:'Manrope',sans-serif;outline:none;transition:border-color .2s;width:100%;}
+.form-control:focus{border-color:var(--yellow);}
+.form-control:disabled{color:var(--muted);cursor:default;}
+.form-control::placeholder{color:var(--muted);}
+textarea.form-control{resize:vertical;min-height:80px;line-height:1.5;}
+.form-error{font-size:11px;color:var(--red);margin-top:2px;}
+.form-hint{font-size:11px;color:var(--muted);margin-top:2px;}
+
+/* lookup box */
+.lookup-box{background:var(--yellow-light);border:2px solid var(--yellow);border-radius:var(--radius-lg);padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.lookup-field .lf-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(0,0,0,0.4);margin-bottom:4px;}
+.lookup-field .lf-value{font-size:14px;font-weight:700;color:var(--dark);}
+.lookup-not-found{background:var(--red-bg);border:1.5px solid rgba(239,68,68,.3);border-radius:var(--radius);padding:12px 16px;font-size:13px;color:var(--red);display:none;}
+
+/* status selector */
+.status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.status-opt{border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 12px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface2);}
+.status-opt:hover{border-color:var(--yellow);background:var(--yellow-light);}
+.status-opt.selected{border-color:var(--yellow);background:var(--yellow);box-shadow:0 4px 16px rgba(255,184,0,0.3);}
+.status-opt.selected .so-emoji,.status-opt.selected .so-label{color:var(--dark);}
+.so-emoji{font-size:24px;display:block;margin-bottom:7px;}
+.so-label{font-size:11.5px;font-weight:700;color:var(--text2);}
+
+/* conditional fields */
+.cond-block{display:none;animation:fadeIn .3s ease;}
+.cond-block.visible{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* review card */
+.review-card{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:20px;}
+.review-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.review-row:last-child{border-bottom:none;}
+.review-key{color:var(--muted);font-weight:600;}
+.review-val{color:var(--text);font-weight:700;text-align:right;max-width:60%;}
+
+/* ── DETAIL PANEL ── */
+.detail-layout{display:grid;grid-template-columns:320px 1fr;gap:16px;}
+.detail-list-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;max-height:78vh;display:flex;flex-direction:column;}
+.detail-list-hdr{padding:14px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:700;display:flex;justify-content:space-between;align-items:center;}
+.detail-list-scroll{overflow-y:auto;flex:1;}
+.di-item{padding:13px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;}
+.di-item:hover{background:var(--surface2);}
+.di-item.selected{background:var(--yellow-light);border-left:3px solid var(--yellow);}
+.di-id{font-size:10px;color:var(--muted);font-family:monospace;}
+.di-name{font-size:13.5px;font-weight:700;margin:3px 0;}
+.di-meta{font-size:11px;color:var(--muted);}
+.detail-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:24px;overflow-y:auto;max-height:78vh;}
+.detail-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.detail-teacher{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--text);}
+.detail-id{font-size:11px;color:var(--muted);font-family:monospace;margin-top:2px;}
+.detail-meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.dm-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.dm-value{font-size:13px;font-weight:600;}
+.timeline{display:flex;flex-direction:column;gap:12px;margin-bottom:20px;}
+.tl-item{display:flex;gap:12px;}
+.tl-spine{display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+.tl-dot{width:10px;height:10px;border-radius:50%;background:var(--yellow);margin-top:3px;flex-shrink:0;}
+.tl-line{width:2px;flex:1;background:var(--border);margin-top:4px;}
+.tl-body{flex:1;}
+.tl-meta{font-size:10.5px;color:var(--muted);margin-bottom:4px;}
+.tl-text{font-size:12.5px;background:var(--surface2);border:1px solid var(--border);padding:9px 12px;border-radius:8px;line-height:1.6;white-space:pre-wrap;}
+.remark-form{border-top:1px solid var(--border);padding-top:18px;}
+.remark-form-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.action-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--dark);border-radius:12px;padding:14px 18px;font-size:13px;z-index:999;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;max-width:340px;transform:translateY(80px);opacity:0;transition:all .3s;pointer-events:none;color:#fff;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{border-left:4px solid var(--green);}
+.toast.error{border-left:4px solid var(--red);}
+.toast.info{border-left:4px solid var(--yellow);}
+
+/* ── EMPTY ── */
+.empty-state{text-align:center;padding:60px 24px;color:var(--muted);}
+.empty-icon{font-size:48px;margin-bottom:14px;}
+.empty-text{font-size:14px;}
+
+/* ── SPINNER ── */
+.spinner{display:inline-block;width:16px;height:16px;border:2.5px solid var(--border);border-top-color:var(--yellow);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:2px;padding:0 28px;background:var(--surface);border-bottom:1px solid var(--border);}
+.tab{padding:12px 16px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2.5px solid transparent;transition:all .18s;user-select:none;}
+.tab:hover{color:var(--text2);}
+.tab.active{color:var(--yellow2);border-bottom-color:var(--yellow);}
+
+/* ── ADMIN ── */
+.admin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.admin-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:20px;}
+.admin-card.wide{grid-column:span 2;}
+.admin-card-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}
+.tag-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;min-height:32px;}
+.tag-item{display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1.5px solid var(--border);color:var(--text2);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;}
+.tag-rm{color:var(--muted);cursor:pointer;font-size:15px;line-height:1;}
+.tag-rm:hover{color:var(--red);}
+.tag-add-row{display:flex;gap:8px;}
+.tag-add-row input{flex:1;background:var(--surface2);border:1.5px solid var(--border);color:var(--text);padding:8px 11px;border-radius:8px;font-size:12.5px;font-family:'Manrope',sans-serif;outline:none;}
+.tag-add-row input:focus{border-color:var(--yellow);}
+
+.hidden{display:none!important;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ LOGIN ═══════════════ -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-left">
+      <div>
+        <div class="login-logo-text">Cuemath</div>
+        <div class="login-logo-sub">Training Management</div>
+      </div>
+      <div>
+        <div class="login-hero-title">Step Up Classroom Training<br>Status Manager</div>
+        <div class="login-hero-sub">Track teacher training status, manage pause/resign requests, and streamline approvals — all in one place.</div>
+        <div class="login-dots">
+          <div class="login-dot active"></div>
+          <div class="login-dot"></div>
+          <div class="login-dot"></div>
+        </div>
+      </div>
+    </div>
+    <div class="login-right">
+      <div class="login-title">Welcome back</div>
+      <div class="login-sub">Sign in to your training portal</div>
+      <div class="login-field">
+        <label>Username</label>
+        <input type="text" id="login-user" placeholder="Enter username" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="login-field">
+        <label>Password</label>
+        <input type="password" id="login-pass" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="login-btn" onclick="doLogin()">Sign In →</button>
+      <div class="login-hint">Mentors: use your name as username<br>Default password: <strong>mentor123</strong></div>
+      <div class="login-err" id="login-err"></div>
+      <div id="local-file-warning" style="display:none;margin-top:12px;background:#FFF3E0;border:1.5px solid #FFA500;border-radius:8px;padding:12px;font-size:12px;color:#7A4000;line-height:1.7;">
+        &#9888; <strong>Cannot connect from local file!</strong><br>
+        You opened this as <code>file://</code> — browsers block network requests from local files.<br><br>
+        <strong>Fix:</strong> Upload to GitHub Pages first, then open the live URL.
+      </div>
+      <div style="margin-top:10px;border-top:1px solid #eee;padding-top:10px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#aaa;margin-bottom:6px;">API Connection Test</div>
+        <button onclick="testAPIConnection()" style="width:100%;padding:8px;background:#f5f5f5;border:1.5px solid #ddd;border-radius:8px;font-size:12px;font-family:Manrope,sans-serif;cursor:pointer;color:#444;">&#128299; Test API Connection</button>
+        <div id="api-test-result" style="font-size:11px;margin-top:6px;text-align:center;min-height:14px;color:#555;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="loading-bar" id="loading-bar"></div>
+
+<!-- ═══════════════ SIDEBAR ═══════════════ -->
+<div class="sidebar" id="sidebar">
+  <div class="logo-area">
+    <div class="logo-text">Cuemath</div>
+    <div class="logo-sub">Training Manager</div>
+  </div>
+  <div class="nav-section-label">Main</div>
+  <div class="nav-item active" onclick="showPage('dashboard')">
+    <span class="nav-icon">📊</span> Dashboard
+  </div>
+  <div class="nav-item" onclick="showPage('requests')" id="nav-requests">
+    <span class="nav-icon">📋</span> All Requests
+    <span class="nav-badge hidden" id="pending-badge">0</span>
+  </div>
+  <div class="nav-item" onclick="showPage('submit')">
+    <span class="nav-icon">➕</span> Submit Request
+  </div>
+  <div class="nav-item" onclick="showPage('followup')">
+    <span class="nav-icon">🔍</span> View Details
+  </div>
+  <div class="nav-section-label admin-only" id="nav-admin-section">Admin</div>
+  <div class="nav-item admin-only" id="nav-admin-item" onclick="showPage('admin')">
+    <span class="nav-icon">⚙️</span> Admin Panel
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="user-av" id="user-av">?</div>
+      <div>
+        <div class="user-name" id="user-name-display">—</div>
+        <div class="user-role" id="user-role-display">—</div>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+  </div>
+</div>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<div class="main" id="main-app" style="display:none;">
+
+  <!-- ── DASHBOARD ── -->
+  <div id="page-dashboard">
+    <div class="topbar">
+      <div>
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub" id="dash-date">Loading...</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost btn-sm" onclick="loadAll()">↻ Refresh</button>
+        <button class="btn btn-primary" onclick="showPage('submit')">+ New Request</button>
+      </div>
+    </div>
+    <div class="tabs">
+      <div class="tab active" onclick="switchDashTab('overview',this)">Overview</div>
+      <div class="tab" onclick="switchDashTab('bymentor',this)">By Mentor</div>
+      <div class="tab" onclick="switchDashTab('bystage',this)">By Stage</div>
+    </div>
+    <div class="content">
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card stat-total"><div class="stat-icon">📁</div><div class="stat-label">Total Requests</div><div class="stat-value" id="s-total">—</div><div class="stat-sub">All time</div></div>
+        <div class="stat-card stat-pending"><div class="stat-icon">⏳</div><div class="stat-label">Pending</div><div class="stat-value" id="s-pending">—</div><div class="stat-sub">Awaiting approval</div></div>
+        <div class="stat-card stat-approved"><div class="stat-icon">✅</div><div class="stat-label">Approved</div><div class="stat-value" id="s-approved">—</div><div class="stat-sub">Processed</div></div>
+        <div class="stat-card stat-rejected"><div class="stat-icon">❌</div><div class="stat-label">Rejected</div><div class="stat-value" id="s-rejected">—</div><div class="stat-sub">Declined</div></div>
+        <div class="stat-card stat-flag"><div class="stat-icon">🚨</div><div class="stat-label">Escalated</div><div class="stat-value" id="s-flag">—</div><div class="stat-sub">Non-resp 7+ days</div></div>
+      </div>
+
+      <!-- Tab content -->
+      <div id="dash-overview">
+        <div class="charts-row">
+          <div class="card">
+            <div class="card-title">Requests by Status Type</div>
+            <div id="chart-bystatus"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Approval Breakdown</div>
+            <div class="donut-wrap" id="chart-donut"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Top Mentors</div>
+            <div id="chart-bymentor-mini"></div>
+          </div>
+        </div>
+        <!-- Pending queue for admin -->
+        <div class="table-wrap" id="pending-queue-wrap">
+          <div class="table-header">
+            <div class="table-title">🕐 Pending Approvals Queue</div>
+            <div class="table-meta" id="pending-queue-count"></div>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead><tr>
+                <th>Request ID</th><th>Teacher</th><th>Mobile</th><th>Mentor</th><th>Stage</th><th>Status</th><th>Submitted</th><th>Actions</th>
+              </tr></thead>
+              <tbody id="pending-queue-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="dash-bymentor" class="hidden">
+        <div class="card"><div class="card-title">Requests per Mentor</div><div id="chart-bymentor-full"></div></div>
+      </div>
+      <div id="dash-bystage" class="hidden">
+        <div class="card"><div class="card-title">Requests by Training Stage</div><div id="chart-bystage-full"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ALL REQUESTS ── -->
+  <div id="page-requests" class="hidden">
+    <div class="topbar">
+      <div><div class="page-title">All Requests</div><div class="page-sub" id="req-count-label">Loading...</div></div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost btn-sm" onclick="loadAll()">↻ Refresh</button>
+        <button class="btn btn-primary" onclick="exportCSV()">⬇ Export CSV</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="filters-bar">
+        <div class="filter-label">Filter:</div>
+        <input type="text" class="filter-control filter-search" id="req-search" placeholder="Search teacher, mentor..." oninput="renderRequestsTable()">
+        <div class="filter-divider"></div>
+        <select class="filter-control" id="req-approval" onchange="renderRequestsTable()">
+          <option value="">All Approvals</option>
+          <option>Pending</option><option>Approved</option><option>Rejected</option><option>Needs Clarification</option>
+        </select>
+        <select class="filter-control" id="req-status" onchange="renderRequestsTable()">
+          <option value="">All Statuses</option>
+          <option>On Pause</option><option>Resigned</option><option>Non-Responsive</option>
+          <option>Failed</option><option>Back to Training</option><option>Disqualified</option>
+        </select>
+        <select class="filter-control" id="req-mentor" onchange="renderRequestsTable()">
+          <option value="">All Mentors</option>
+        </select>
+        <select class="filter-control" id="req-stage" onchange="renderRequestsTable()">
+          <option value="">All Stages</option>
+          <option>Async Training</option><option>Classroom Readiness Session (CRS)</option>
+          <option>Mock 1 Session</option><option>Mock 2 Session</option><option>Final Class Performance (FCP)</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="clearReqFilters()">✕ Clear</button>
+      </div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">Requests Log</div>
+          <div class="table-meta" id="req-showing"></div>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead><tr>
+              <th>ID</th><th>Teacher</th><th>Mobile</th><th>Mentor</th><th>Stage</th>
+              <th>Status</th><th>Approval</th><th>Submitted</th><th>Flag</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="req-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SUBMIT REQUEST ── -->
+  <div id="page-submit" class="hidden">
+    <div class="topbar">
+      <div><div class="page-title">Submit Status Request</div><div class="page-sub">Report a teacher's training status change</div></div>
+    </div>
+    <div class="content" style="max-width:700px;">
+      <!-- Step Indicator -->
+      <div class="step-indicator" id="step-indicator">
+        <div class="step-wrap"><div class="step-circle active" id="sc-1">1</div><div class="step-label">Lookup</div></div>
+        <div class="step-line" id="sl-1"></div>
+        <div class="step-wrap"><div class="step-circle" id="sc-2">2</div><div class="step-label">Stage</div></div>
+        <div class="step-line" id="sl-2"></div>
+        <div class="step-wrap"><div class="step-circle" id="sc-3">3</div><div class="step-label">Status</div></div>
+        <div class="step-line" id="sl-3"></div>
+        <div class="step-wrap"><div class="step-circle" id="sc-4">4</div><div class="step-label">Details</div></div>
+        <div class="step-line" id="sl-4"></div>
+        <div class="step-wrap"><div class="step-circle" id="sc-5">5</div><div class="step-label">Review</div></div>
+      </div>
+
+      <!-- Step 1: Lookup -->
+      <div class="card" id="form-step-1">
+        <div class="card-title">Step 1 — Find Teacher by Mobile Number</div>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label class="form-label">Mobile Number <span>*</span></label>
+          <div style="display:flex;gap:10px;">
+            <input type="tel" class="form-control" id="f-mobile" placeholder="Enter 10-digit mobile number" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===10)lookupTeacher()">
+            <button class="btn btn-dark" onclick="lookupTeacher()">🔍 Search</button>
+          </div>
+          <div class="form-hint">Enter the teacher's registered 10-digit mobile number</div>
+          <div class="lookup-not-found" id="lookup-error"></div>
+        </div>
+        <div id="lookup-result" class="hidden">
+          <div class="lookup-box">
+            <div class="lookup-field"><div class="lf-label">Teacher Name</div><div class="lf-value" id="lf-name">—</div></div>
+            <div class="lookup-field"><div class="lf-label">DB ID</div><div class="lf-value" id="lf-dbid">—</div></div>
+            <div class="lookup-field"><div class="lf-label">Email</div><div class="lf-value" id="lf-email">—</div></div>
+            <div class="lookup-field"><div class="lf-label">Mentor</div><div class="lf-value" id="lf-mentor">—</div></div>
+          </div>
+          <div style="margin-top:16px;display:flex;justify-content:flex-end;">
+            <button class="btn btn-primary" onclick="goStep(2)">Continue →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Stage -->
+      <div class="card hidden" id="form-step-2">
+        <div class="card-title">Step 2 — Current Training Stage</div>
+        <div class="form-group">
+          <label class="form-label">Where is the teacher currently? <span>*</span></label>
+          <select class="form-control" id="f-stage">
+            <option value="">Select training stage...</option>
+            <option>Async Training</option>
+            <option>Classroom Readiness Session (CRS)</option>
+            <option>Mock 1 Session</option>
+            <option>Mock 2 Session</option>
+            <option>Final Class Performance (FCP)</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-top:14px;">
+          <label class="form-label">Submitted By</label>
+          <input type="text" class="form-control" id="f-submittedby" placeholder="Your name (auto-filled if logged in)">
+        </div>
+        <div style="display:flex;gap:10px;margin-top:20px;justify-content:space-between;">
+          <button class="btn btn-ghost" onclick="goStep(1)">← Back</button>
+          <button class="btn btn-primary" onclick="goStep(3)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Status -->
+      <div class="card hidden" id="form-step-3">
+        <div class="card-title">Step 3 — Select Teacher Status</div>
+        <div class="status-grid">
+          <div class="status-opt" onclick="selectStatus('On Pause',this)">
+            <span class="so-emoji">⏸️</span><span class="so-label">On Pause</span>
+          </div>
+          <div class="status-opt" onclick="selectStatus('Back to Training',this)">
+            <span class="so-emoji">🔄</span><span class="so-label">Back to Training</span>
+          </div>
+          <div class="status-opt" onclick="selectStatus('Resigned',this)">
+            <span class="so-emoji">🚪</span><span class="so-label">Resigned</span>
+          </div>
+          <div class="status-opt" onclick="selectStatus('Non-Responsive',this)">
+            <span class="so-emoji">📵</span><span class="so-label">Non-Responsive</span>
+          </div>
+          <div class="status-opt" onclick="selectStatus('Failed',this)">
+            <span class="so-emoji">❌</span><span class="so-label">Failed</span>
+          </div>
+          <div class="status-opt" onclick="selectStatus('Disqualified',this)">
+            <span class="so-emoji">⛔</span><span class="so-label">Disqualified</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:20px;justify-content:space-between;">
+          <button class="btn btn-ghost" onclick="goStep(2)">← Back</button>
+          <button class="btn btn-primary" onclick="goStep(4)" id="step3-next" disabled>Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Conditional Details -->
+      <div class="card hidden" id="form-step-4">
+        <div class="card-title">Step 4 — Status Details</div>
+
+        <!-- On Pause -->
+        <div class="cond-block" id="cond-pause">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Pause Start Date <span>*</span></label>
+              <input type="date" class="form-control" id="f-pause-start">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Expected Resume Date <span>*</span></label>
+              <input type="date" class="form-control" id="f-pause-resume">
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Reason for Pause <span>*</span></label>
+              <textarea class="form-control" id="f-pause-reason" placeholder="Describe the reason for pause..."></textarea>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Has teacher sent email to Classroom.training@cuemath.com? <span>*</span></label>
+              <select class="form-control" id="f-email-confirmed">
+                <option value="">Select...</option>
+                <option>Yes</option><option>No</option><option>Maybe</option>
+              </select>
+              <div class="form-hint">If not, ensure teacher writes an email with reason of pause.</div>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Screenshot / Evidence Note</label>
+              <textarea class="form-control" id="f-pause-screenshot" placeholder="Add screenshot description, WhatsApp message summary, or link..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Back to Training -->
+        <div class="cond-block" id="cond-back">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label class="form-label">Next Training Step <span>*</span></label>
+              <select class="form-control" id="f-back-step">
+                <option value="">Select next step...</option>
+                <option>Async Training</option>
+                <option>Classroom Readiness Session (CRS)</option>
+                <option>Mock 1 Session</option>
+                <option>Mock 2 Session</option>
+                <option>Final Class Performance (FCP)</option>
+              </select>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Resume Date <span>*</span></label>
+              <input type="date" class="form-control" id="f-back-date">
+            </div>
+          </div>
+        </div>
+
+        <!-- Resigned -->
+        <div class="cond-block" id="cond-resign">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label class="form-label">Reason for Resignation <span>*</span></label>
+              <textarea class="form-control" id="f-resign-reason" placeholder="Describe why the teacher resigned..."></textarea>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Screenshot / Evidence Note</label>
+              <textarea class="form-control" id="f-resign-screenshot" placeholder="WhatsApp message summary, email screenshot description, or link..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Non-Responsive -->
+        <div class="cond-block" id="cond-nonresp">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Last Response Date <span>*</span></label>
+              <input type="date" class="form-control" id="f-lastresponse">
+              <div class="form-hint">Most recent date tutor responded. 2+ days = Non-Responsive. 7+ days = escalate.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Follow-up Attempts</label>
+              <input type="number" class="form-control" id="f-followups" min="1" placeholder="How many times followed up?">
+            </div>
+          </div>
+        </div>
+
+        <!-- Failed -->
+        <div class="cond-block" id="cond-failed">
+          <div class="form-group">
+            <label class="form-label">Reason for Failure <span>*</span></label>
+            <select class="form-control" id="f-fail-reason">
+              <option value="">Select reason...</option>
+              <option>Poor Communication Skills</option>
+              <option>Non-Compliant</option>
+              <option>Poor Math Knowledge</option>
+              <option>No Improvement after Async Training</option>
+              <option>Poor TCW</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Disqualified -->
+        <div class="cond-block" id="cond-disq">
+          <div class="form-group">
+            <label class="form-label">Reason for Disqualification <span>*</span></label>
+            <textarea class="form-control" id="f-disq-reason" placeholder="Describe reason for disqualification..."></textarea>
+          </div>
+        </div>
+
+        <!-- Common notes -->
+        <div class="form-group" style="margin-top:16px;">
+          <label class="form-label">Additional Notes</label>
+          <textarea class="form-control" id="f-notes" placeholder="Any extra context or remarks..."></textarea>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:20px;justify-content:space-between;">
+          <button class="btn btn-ghost" onclick="goStep(3)">← Back</button>
+          <button class="btn btn-primary" onclick="goStep(5)">Review →</button>
+        </div>
+      </div>
+
+      <!-- Step 5: Review -->
+      <div class="card hidden" id="form-step-5">
+        <div class="card-title">Step 5 — Review & Submit</div>
+        <div class="review-card" id="review-content" style="margin-bottom:20px;"></div>
+        <div style="background:var(--yellow-light);border:1.5px solid var(--yellow);border-radius:var(--radius);padding:12px 16px;font-size:12.5px;color:var(--dark);margin-bottom:20px;">
+          ⚠️ This request will be sent for <strong>Admin Approval</strong>. You will be notified once it's reviewed.
+        </div>
+        <div style="display:flex;gap:10px;justify-content:space-between;">
+          <button class="btn btn-ghost" onclick="goStep(4)">← Back</button>
+          <button class="btn btn-primary" onclick="submitForm()" id="submit-btn">✓ Submit Request</button>
+        </div>
+      </div>
+
+      <!-- Success -->
+      <div class="card hidden" id="form-success" style="text-align:center;padding:40px;">
+        <div style="font-size:56px;margin-bottom:16px;">🎉</div>
+        <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:8px;">Request Submitted!</div>
+        <div style="color:var(--muted);font-size:14px;margin-bottom:8px;">Your request ID: <strong id="success-id" style="color:var(--yellow2);"></strong></div>
+        <div style="color:var(--muted);font-size:13px;margin-bottom:28px;">An admin will review and approve/reject your request shortly.</div>
+        <div style="display:flex;gap:10px;justify-content:center;">
+          <button class="btn btn-ghost" onclick="resetForm();showPage('dashboard')">Go to Dashboard</button>
+          <button class="btn btn-primary" onclick="resetForm()">Submit Another</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FOLLOW-UP / DETAILS ── -->
+  <div id="page-followup" class="hidden">
+    <div class="topbar">
+      <div><div class="page-title">Request Details</div><div class="page-sub">View full timeline & take actions</div></div>
+      <div class="topbar-actions">
+        <input type="text" class="filter-control" id="fu-search" placeholder="Search..." oninput="renderFollowupList()" style="width:180px;">
+      </div>
+    </div>
+    <div class="content">
+      <div class="detail-layout">
+        <div class="detail-list-wrap">
+          <div class="detail-list-hdr">
+            <span>Requests</span><span class="spinner hidden" id="fu-spinner"></span>
+          </div>
+          <div class="detail-list-scroll" id="fu-list"></div>
+        </div>
+        <div class="detail-card" id="fu-detail">
+          <div class="empty-state"><div class="empty-icon">👈</div><div class="empty-text">Select a request to view details</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ADMIN ── -->
+  <div id="page-admin" class="hidden">
+    <div class="topbar">
+      <div><div class="page-title">Admin Panel</div><div class="page-sub">Manage users and system settings</div></div>
+    </div>
+    <div class="content">
+      <div class="admin-grid">
+        <div class="admin-card wide">
+          <div class="admin-card-title">System Users <button class="btn btn-primary btn-xs" onclick="openAddUser()">+ Add User</button></div>
+          <table style="width:100%;border-collapse:collapse;">
+            <thead><tr style="background:var(--surface2);">
+              <th style="padding:8px 12px;text-align:left;font-size:10px;text-transform:uppercase;color:var(--muted);">Username</th>
+              <th style="padding:8px 12px;text-align:left;font-size:10px;text-transform:uppercase;color:var(--muted);">Role</th>
+            </tr></thead>
+            <tbody id="users-tbody"></tbody>
+          </table>
+        </div>
+        <div class="admin-card">
+          <div class="admin-card-title">Quick Stats</div>
+          <div id="admin-quick-stats"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODALS ═══════════════ -->
+<!-- Approve Modal -->
+<div class="overlay" id="modal-approve">
+  <div class="modal" style="width:480px;">
+    <div class="modal-title">✅ Approve Request</div>
+    <div class="modal-sub" id="approve-req-id"></div>
+    <div class="form-group">
+      <label class="form-label">Note (optional)</label>
+      <textarea class="form-control" id="approve-note" placeholder="Add any note for the mentor..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-approve')">Cancel</button>
+      <button class="btn btn-green" onclick="confirmApprove()">✅ Confirm Approve</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="overlay" id="modal-reject">
+  <div class="modal" style="width:480px;">
+    <div class="modal-title">❌ Reject Request</div>
+    <div class="modal-sub" id="reject-req-id"></div>
+    <div class="form-group">
+      <label class="form-label">Reason for Rejection <span style="color:var(--red)">*</span></label>
+      <textarea class="form-control" id="reject-reason" placeholder="Explain why this request is being rejected..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-reject')">Cancel</button>
+      <button class="btn btn-red" onclick="confirmReject()">❌ Confirm Reject</button>
+    </div>
+  </div>
+</div>
+
+<!-- Query Modal -->
+<div class="overlay" id="modal-query">
+  <div class="modal" style="width:480px;">
+    <div class="modal-title">💬 Request Clarification</div>
+    <div class="modal-sub" id="query-req-id"></div>
+    <div class="form-group">
+      <label class="form-label">Your Question <span style="color:var(--red)">*</span></label>
+      <textarea class="form-control" id="query-question" placeholder="What clarification do you need from the mentor?"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-query')">Cancel</button>
+      <button class="btn btn-blue" onclick="confirmQuery()">💬 Send Query</button>
+    </div>
+  </div>
+</div>
+
+<!-- Remark Modal -->
+<div class="overlay" id="modal-remark">
+  <div class="modal" style="width:480px;">
+    <div class="modal-title">📝 Add Remark</div>
+    <div class="modal-sub" id="remark-req-id"></div>
+    <div class="form-group">
+      <label class="form-label">Remark <span style="color:var(--red)">*</span></label>
+      <textarea class="form-control" id="remark-text" placeholder="Add a follow-up note or remark..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-remark')">Cancel</button>
+      <button class="btn btn-dark" onclick="confirmRemark()">Add Remark</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="overlay" id="modal-adduser">
+  <div class="modal" style="width:480px;">
+    <div class="modal-title">👤 Add User</div>
+    <div class="modal-sub">Add a new system user</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Username <span style="color:var(--red)">*</span></label>
+        <input type="text" class="form-control" id="new-username" placeholder="e.g. Manesha">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password <span style="color:var(--red)">*</span></label>
+        <input type="password" class="form-control" id="new-password" placeholder="Set a password">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Role</label>
+        <select class="form-control" id="new-role">
+          <option value="mentor">Mentor</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mentor Name (if mentor)</label>
+        <input type="text" class="form-control" id="new-mentorname" placeholder="Full mentor name">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-adduser')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveUser()">Add User</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  CONFIG — replace with your deployed Apps Script URL
+// ════════════════════════════════════════════════════════
+const API_URL = 'https://script.google.com/macros/s/AKfycbx5hYeKeDIVS67IbPN2OfOs7-F9tAkHZBj8CEcL9mKUf5dhiT2vcBLTSnoEdrN4SZ7Rzg/exec';
+
+// ── State ──────────────────────────────────────────────
+let currentUser = null;
+let allRequests = [];
+let currentStats = {};
+let selectedReqId = null;
+let formData = {};
+let currentStep = 1;
+let lookupTeacherData = null;
+
+// ── Detect local file & show warning ─────────────────
+window.addEventListener('load', function() {
+  if (location.protocol === 'file:') {
+    document.getElementById('local-file-warning').style.display = 'block';
+    document.getElementById('login-err').textContent = '⚠️ Open from GitHub Pages — not as a local file.';
+  }
+});
+
+// ── Test API connection ────────────────────────────────
+async function testAPIConnection() {
+  const resultEl = document.getElementById('api-test-result');
+  if (API_URL === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+    resultEl.style.color = '#E65100';
+    resultEl.textContent = '❌ API_URL not set in index.html yet.';
+    return;
+  }
+  if (location.protocol === 'file:') {
+    resultEl.style.color = '#C62828';
+    resultEl.textContent = '❌ Cannot test from local file — upload to GitHub Pages first.';
+    return;
+  }
+  resultEl.style.color = '#888';
+  resultEl.textContent = 'Testing...';
+  try {
+    const res  = await fetch(API_URL, { method:'GET', redirect:'follow' });
+    const text = await res.text();
+    if (text.includes('ok') || text.includes('live')) {
+      resultEl.style.color = '#2E7D32';
+      resultEl.textContent = '✅ API is reachable! You can now log in.';
+    } else {
+      resultEl.style.color = '#2E7D32';
+      resultEl.textContent = '✅ Got a response — API is live.';
+    }
+  } catch(e) {
+    resultEl.style.color = '#C62828';
+    resultEl.textContent = '❌ ' + e.message + ' — check your API URL.';
+  }
+}
+
+// ── Loading bar ────────────────────────────────────────
+function setLoading(v) {
+  const bar = document.getElementById('loading-bar');
+  bar.style.width = v ? '70%' : '0';
+  if (!v) setTimeout(() => bar.style.width = '0', 400);
+}
+
+// ── Toast ──────────────────────────────────────────────
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 3200);
+}
+
+// ── API call ───────────────────────────────────────────
+// All API calls go via POST to avoid Apps Script CORS redirect issues
+async function api(action, extra) {
+  return apiPost(Object.assign({ action }, extra || {}));
+}
+async function apiPost(data) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    redirect: 'follow',
+    body: JSON.stringify(data)
+  });
+  const text = await res.text();
+  try { return JSON.parse(text); }
+  catch(e) { return { success: false, error: 'Invalid response: ' + text.slice(0, 120) }; }
+}
+
+// ── LOGIN ──────────────────────────────────────────────
+async function doLogin() {
+  const username = document.getElementById('login-user').value.trim();
+  const password = document.getElementById('login-pass').value.trim();
+  const err      = document.getElementById('login-err');
+  if (!username || !password) { err.textContent = 'Please enter username and password.'; return; }
+  err.textContent = '';
+  setLoading(true);
+
+  // Demo mode if no API_URL
+  if (API_URL === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+    const demoUsers = {
+      admin:  { role:'admin',  mentor:'Admin' },
+      mentor1:{ role:'mentor', mentor:'Manesha' }
+    };
+    if (demoUsers[username] && password === 'admin123') {
+      currentUser = { username, ...demoUsers[username] };
+      finishLogin();
+      setLoading(false);
+      return;
+    }
+    err.textContent = 'Demo: use "admin"/"admin123" or "mentor1"/"admin123"';
+    setLoading(false);
+    return;
+  }
+
+  try {
+    const res = await apiPost({ action: 'login', username, password });
+    if (res.success) {
+      currentUser = res.user;
+      finishLogin();
+    } else {
+      err.textContent = res.error || 'Login failed. Check username and password.';
+    }
+  } catch(e) {
+    err.textContent = 'Connection error: ' + e.message;
+  }
+  setLoading(false);
+}
+
+function finishLogin() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('main-app').style.display = '';
+  document.getElementById('user-av').textContent = currentUser.username[0].toUpperCase();
+  document.getElementById('user-name-display').textContent = currentUser.username;
+  document.getElementById('user-role-display').textContent = currentUser.role;
+  document.getElementById('f-submittedby').value = currentUser.username;
+
+  if (currentUser.role === 'admin') {
+    document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+    document.getElementById('pending-badge').classList.remove('hidden');
+  }
+  loadAll();
+  showPage('dashboard');
+}
+
+function doLogout() {
+  currentUser = null;
+  allRequests = [];
+  document.getElementById('main-app').style.display = 'none';
+  document.getElementById('login-screen').style.display = '';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+}
+
+// ── NAVIGATION ────────────────────────────────────────
+function showPage(page) {
+  ['dashboard','requests','submit','followup','admin'].forEach(p => {
+    document.getElementById('page-'+p).classList.toggle('hidden', p !== page);
+  });
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navMap = { dashboard:'Dashboard', requests:'All Requests', submit:'Submit Request', followup:'View Details', admin:'Admin Panel' };
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.trim().startsWith(navMap[page] || '')) n.classList.add('active');
+  });
+  if (page === 'followup') renderFollowupList();
+  if (page === 'admin')    loadAdminPanel();
+}
+
+// ── LOAD ALL DATA ─────────────────────────────────────
+async function loadAll() {
+  if (API_URL === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+    loadDemoData();
+    return;
+  }
+  setLoading(true);
+  try {
+    const mentorFilter = currentUser?.role === 'mentor' ? currentUser.mentor : '';
+    const [req, stats] = await Promise.all([
+      apiPost({ action:'getAll', mentorFilter }),
+      apiPost({ action:'getStats', mentorFilter })
+    ]);
+    if (req.success)   {
+      allRequests = req.data;
+      if (currentUser && currentUser.role === 'mentor') {
+        allRequests = allRequests.filter(r => r.mentorName === currentUser.mentor || r.submittedBy === currentUser.username);
+      }
+    }
+    if (stats.success) currentStats = stats;
+    renderDashboard();
+    renderRequestsTable();
+    renderFollowupList();
+    updatePendingBadge();
+  } catch(e) {
+    showToast('Failed to load data', 'error');
+  }
+  setLoading(false);
+}
+
+function loadDemoData() {
+  allRequests = [
+    { id:'REQ-0001', submittedAt:'2025-04-20 10:30', dbid:'164f6a74-1150', teacherName:'Aliya Khan', mobile:'8120467335', email:'aliyasrkhan786@gmail.com', mentorName:'Manesha', submittedBy:'Manesha', trainingStage:'Mock 1 Session', status:'On Pause', approvalStatus:'Pending', pauseStartDate:'2025-04-18', pauseReason:'Family emergency, will return in 2 weeks', resumeDate:'2025-05-02', emailConfirmed:'Yes', notes:'Confirmed via WhatsApp', remarks:'', lastUpdated:'2025-04-20 10:30' },
+    { id:'REQ-0002', submittedAt:'2025-04-19 14:15', dbid:'d17dc976-9836', teacherName:'Sankar', mobile:'8072397639', email:'sethusankar@yahoo.com', mentorName:'Jayageetha', submittedBy:'Jayageetha', trainingStage:'Async Training', status:'Non-Responsive', approvalStatus:'Approved', lastResponseDate:'2025-04-12', notes:'7+ days no response', remarks:'[20-Apr-2025 09:00 — admin]: ✅ APPROVED. Escalation noted.', lastUpdated:'2025-04-20 09:00', approvedBy:'admin', approvedAt:'2025-04-20 09:00' },
+    { id:'REQ-0003', submittedAt:'2025-04-21 09:45', dbid:'188d53be-ce7d', teacherName:'Saniya Parveen', mobile:'9795668478', email:'parveensaniyaa@gmail.com', mentorName:'Ramani', submittedBy:'Ramani', trainingStage:'CRS', status:'Resigned', approvalStatus:'Needs Clarification', resignReason:'Personal reasons', notes:'', remarks:'[21-Apr-2025 11:00 — admin]: 💬 QUERY: Please share screenshot of resignation message', lastUpdated:'2025-04-21 11:00' },
+    { id:'REQ-0004', submittedAt:'2025-04-22 16:20', dbid:'35ff849a-625c', teacherName:'Palak Luthra', mobile:'8054246800', email:'palak10may93@gmail.com', mentorName:'Shirin Vasaya', submittedBy:'Shirin Vasaya', trainingStage:'Mock 2 Session', status:'Failed', approvalStatus:'Rejected', failReason:'Poor Communication Skills', remarks:'[22-Apr-2025 17:00 — admin]: ❌ REJECTED. Reason: Please re-evaluate before marking Failed', lastUpdated:'2025-04-22 17:00', rejectedBy:'admin' },
+    { id:'REQ-0005', submittedAt:'2025-04-23 11:00', dbid:'7138a490-62f9', teacherName:'Sonam Goyal', mobile:'7278891894', email:'sonamgoyal198@gmail.com', mentorName:'Shruti Khullar', submittedBy:'Shruti Khullar', trainingStage:'FCP', status:'Back to Training', approvalStatus:'Approved', backToTrainingStep:'Mock 2 Session', backToTrainingDate:'2025-04-28', remarks:'[23-Apr-2025 12:00 — admin]: ✅ APPROVED.', lastUpdated:'2025-04-23 12:00', approvedBy:'admin' },
+  ];
+  currentStats = {
+    total:5, pending:1, approved:2, rejected:1, needsClarity:1, nonResponsiveFlag:1,
+    byStatus:{'On Pause':1,'Non-Responsive':1,'Resigned':1,'Failed':1,'Back to Training':1},
+    byMentor:{'Manesha':1,'Jayageetha':1,'Ramani':1,'Shirin Vasaya':1,'Shruti Khullar':1},
+    byStage:{'Mock 1 Session':1,'Async Training':1,'CRS':1,'Mock 2 Session':1,'FCP':1}
+  };
+  renderDashboard();
+  renderRequestsTable();
+  renderFollowupList();
+  updatePendingBadge();
+  document.getElementById('dash-date').textContent = 'Demo mode — ' + new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+
+function updatePendingBadge() {
+  const pending = allRequests.filter(r => r.approvalStatus === 'Pending').length;
+  const badge   = document.getElementById('pending-badge');
+  badge.textContent = pending;
+  badge.classList.toggle('hidden', pending === 0 || currentUser?.role !== 'admin');
+}
+
+// ── DASHBOARD ─────────────────────────────────────────
+function renderDashboard() {
+  document.getElementById('dash-date').textContent = new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('s-total').textContent   = currentStats.total   || 0;
+  document.getElementById('s-pending').textContent = currentStats.pending  || 0;
+  document.getElementById('s-approved').textContent= currentStats.approved || 0;
+  document.getElementById('s-rejected').textContent= currentStats.rejected || 0;
+  document.getElementById('s-flag').textContent    = currentStats.nonResponsiveFlag || 0;
+
+  renderBarChart('chart-bystatus', currentStats.byStatus || {}, currentStats.total || 1, statusColor);
+  renderBarChart('chart-bymentor-mini', currentStats.byMentor || {}, currentStats.total || 1, ()=>'var(--yellow)');
+  renderBarChart('chart-bymentor-full', currentStats.byMentor || {}, currentStats.total || 1, ()=>'var(--yellow)');
+  renderBarChart('chart-bystage-full', currentStats.byStage || {}, currentStats.total || 1, ()=>'var(--blue)');
+  renderDonut();
+  renderPendingQueue();
+
+  // Populate mentor filter
+  const mentors = [...new Set(allRequests.map(r=>r.mentorName).filter(Boolean))];
+  const sel = document.getElementById('req-mentor');
+  sel.innerHTML = '<option value="">All Mentors</option>' + mentors.map(m=>`<option>${m}</option>`).join('');
+}
+
+function switchDashTab(tab, el) {
+  document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['overview','bymentor','bystage'].forEach(t=>document.getElementById('dash-'+t).classList.toggle('hidden',t!==tab));
+}
+
+function renderBarChart(id, data, total, colorFn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const entries = Object.entries(data).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if (!entries.length) { el.innerHTML = '<div class="empty-state" style="padding:20px;"><div class="empty-icon">📊</div><div class="empty-text">No data</div></div>'; return; }
+  const max = entries[0][1];
+  el.innerHTML = entries.map(([k,v]) =>
+    `<div class="bar-row">
+      <div class="bar-label" title="${k}">${k}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(v/max*100).toFixed(1)}%;background:${colorFn(k)};"></div></div>
+      <div class="bar-val">${v}</div>
+    </div>`
+  ).join('');
+}
+
+function statusColor(s) {
+  const m = {'On Pause':'#F97316','Resigned':'#EF4444','Non-Responsive':'#8B5CF6','Failed':'#DC2626','Back to Training':'#22C55E','Disqualified':'#6B7280'};
+  return m[s] || 'var(--yellow)';
+}
+
+function renderDonut() {
+  const el = document.getElementById('chart-donut');
+  if (!el) return;
+  const total = currentStats.total || 0;
+  if (!total) { el.innerHTML = '<div class="empty-state" style="padding:20px;"><div class="empty-icon">🍩</div></div>'; return; }
+  const data = [
+    { label:'Approved', val:currentStats.approved||0, color:'#22C55E' },
+    { label:'Pending',  val:currentStats.pending||0,  color:'#F97316' },
+    { label:'Rejected', val:currentStats.rejected||0, color:'#EF4444' },
+    { label:'Clarification', val:currentStats.needsClarity||0, color:'#3B82F6' }
+  ].filter(d=>d.val>0);
+  let offset = 0, r = 40, cx = 50, cy = 50;
+  const circles = data.map(d => {
+    const pct  = d.val / total;
+    const dash = pct * 251.2;
+    const gap  = 251.2 - dash;
+    const el   = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${d.color}" stroke-width="12" stroke-dasharray="${dash} ${gap}" stroke-dashoffset="${-offset}" style="transform:rotate(-90deg);transform-origin:50% 50%;"/>`;
+    offset += dash;
+    return el;
+  });
+  el.innerHTML = `
+    <svg class="donut-svg" viewBox="0 0 100 100" width="100" height="100">
+      <circle cx="50" cy="50" r="40" fill="none" stroke="var(--surface3)" stroke-width="12"/>
+      ${circles.join('')}
+    </svg>
+    <div class="donut-legend">
+      ${data.map(d=>`<div class="dl-item"><div class="dl-dot" style="background:${d.color}"></div><span>${d.label}</span><span class="dl-pct">${d.val}</span></div>`).join('')}
+    </div>`;
+}
+
+function renderPendingQueue() {
+  const pending = allRequests.filter(r=>r.approvalStatus==='Pending');
+  document.getElementById('pending-queue-count').textContent = pending.length + ' pending';
+  document.getElementById('pending-queue-tbody').innerHTML = pending.length
+    ? pending.map(r=>`<tr>
+        <td><code style="font-size:11px;color:var(--muted)">${r.id}</code></td>
+        <td><strong>${r.teacherName}</strong></td>
+        <td style="color:var(--muted)">${r.mobile}</td>
+        <td>${r.mentorName}</td>
+        <td>${r.trainingStage}</td>
+        <td>${statusBadge(r.status)}</td>
+        <td style="color:var(--muted);font-size:12px">${r.submittedAt}</td>
+        <td>
+          ${currentUser?.role==='admin' ? `<button class="btn btn-green btn-xs" onclick="openApprove('${r.id}')">✓</button>
+          <button class="btn btn-red btn-xs" onclick="openReject('${r.id}')">✗</button>
+          <button class="btn btn-blue btn-xs" onclick="openQuery('${r.id}')">?</button>` : '—'}
+        </td>
+      </tr>`).join('')
+    : '<tr><td colspan="8" class="empty-state" style="padding:30px;text-align:center;">No pending requests 🎉</td></tr>';
+}
+
+// ── REQUESTS TABLE ────────────────────────────────────
+function renderRequestsTable() {
+  const search   = (document.getElementById('req-search')?.value||'').toLowerCase();
+  const approval = document.getElementById('req-approval')?.value||'';
+  const status   = document.getElementById('req-status')?.value||'';
+  const mentor   = document.getElementById('req-mentor')?.value||'';
+  const stage    = document.getElementById('req-stage')?.value||'';
+
+  let filtered = allRequests.filter(r => {
+    if (search && !`${r.teacherName} ${r.mentorName} ${r.mobile} ${r.id}`.toLowerCase().includes(search)) return false;
+    if (approval && r.approvalStatus !== approval) return false;
+    if (status && r.status !== status) return false;
+    if (mentor && r.mentorName !== mentor) return false;
+    if (stage && r.trainingStage !== stage) return false;
+    return true;
+  });
+
+  document.getElementById('req-showing').textContent = `Showing ${filtered.length} of ${allRequests.length}`;
+  document.getElementById('req-count-label').textContent = `${allRequests.length} total requests`;
+
+  const today = new Date();
+  document.getElementById('req-tbody').innerHTML = filtered.length
+    ? filtered.map(r => {
+        const isEscalated = r.status==='Non-Responsive' && r.lastResponseDate && (today-new Date(r.lastResponseDate))/(86400000)>=7;
+        return `<tr>
+          <td><code style="font-size:11px;color:var(--muted)">${r.id}</code></td>
+          <td><strong>${r.teacherName}</strong><div style="font-size:11px;color:var(--muted)">${r.email||''}</div></td>
+          <td style="color:var(--muted)">${r.mobile}</td>
+          <td>${r.mentorName}</td>
+          <td style="font-size:12px">${r.trainingStage}</td>
+          <td>${statusBadge(r.status)}</td>
+          <td>${approvalBadge(r.approvalStatus)}</td>
+          <td style="font-size:12px;color:var(--muted)">${r.submittedAt}</td>
+          <td>${isEscalated ? '<span class="badge flag-badge">🚨 7+ days</span>' : '—'}</td>
+          <td>
+            <button class="btn btn-ghost btn-xs" onclick="openDetail('${r.id}')">👁 View</button>
+            ${currentUser?.role==='admin' && r.approvalStatus==='Pending' ? `
+              <button class="btn btn-green btn-xs" onclick="openApprove('${r.id}')">✓</button>
+              <button class="btn btn-red btn-xs" onclick="openReject('${r.id}')">✗</button>` : ''}
+          </td>
+        </tr>`;
+      }).join('')
+    : '<tr><td colspan="10" class="empty-state" style="padding:40px;text-align:center;"><div>📭</div><div>No requests found</div></td></tr>';
+}
+
+function clearReqFilters() {
+  ['req-search','req-approval','req-status','req-mentor','req-stage'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value='';
+  });
+  renderRequestsTable();
+}
+
+function statusBadge(s) {
+  const cls = {
+    'On Pause':'status-pause','Resigned':'status-resign','Non-Responsive':'status-nonresp',
+    'Failed':'status-failed','Back to Training':'status-back','Disqualified':'status-disq'
+  };
+  return `<span class="badge ${cls[s]||''}">${s||'—'}</span>`;
+}
+
+function approvalBadge(s) {
+  const cls = { 'Pending':'badge-pending','Approved':'badge-approved','Rejected':'badge-rejected','Needs Clarification':'badge-clarification' };
+  const dot = `<div class="badge-dot" style="background:currentColor"></div>`;
+  return `<span class="badge ${cls[s]||''}">${dot}${s||'—'}</span>`;
+}
+
+// ── DETAIL / FOLLOW-UP ────────────────────────────────
+function renderFollowupList() {
+  const search = (document.getElementById('fu-search')?.value||'').toLowerCase();
+  let list = allRequests.filter(r => !search || `${r.teacherName} ${r.mentorName} ${r.id}`.toLowerCase().includes(search));
+  const el = document.getElementById('fu-list');
+  el.innerHTML = list.length
+    ? list.map(r=>`<div class="di-item ${r.id===selectedReqId?'selected':''}" onclick="openDetail('${r.id}');showPage('followup')">
+        <div class="di-id">${r.id}</div>
+        <div class="di-name">${r.teacherName}</div>
+        <div class="di-meta">${statusBadge(r.status)} ${approvalBadge(r.approvalStatus)}</div>
+        <div class="di-meta" style="margin-top:4px;">${r.mentorName} · ${r.trainingStage}</div>
+      </div>`).join('')
+    : '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">No results</div></div>';
+}
+
+function openDetail(id) {
+  selectedReqId = id;
+  const r = allRequests.find(x=>x.id===id);
+  if (!r) return;
+  showPage('followup');
+  renderFollowupList();
+
+  const today = new Date();
+  const isEscalated = r.status==='Non-Responsive' && r.lastResponseDate && (today-new Date(r.lastResponseDate))/(86400000)>=7;
+
+  // Build detail fields
+  const fields = [
+    ['DBID', r.dbid],['Mobile', r.mobile],['Email', r.email],
+    ['Mentor', r.mentorName],['Training Stage', r.trainingStage],
+    ['Submitted By', r.submittedBy],['Submitted At', r.submittedAt],
+  ];
+
+  // Conditional extra fields
+  if (r.status==='On Pause') {
+    if(r.pauseStartDate) fields.push(['Pause Start', r.pauseStartDate]);
+    if(r.resumeDate) fields.push(['Expected Resume', r.resumeDate]);
+    if(r.pauseReason) fields.push(['Pause Reason', r.pauseReason]);
+    if(r.emailConfirmed) fields.push(['Email Confirmed', r.emailConfirmed]);
+  }
+  if (r.status==='Resigned') {
+    if(r.resignReason) fields.push(['Resign Reason', r.resignReason]);
+  }
+  if (r.status==='Non-Responsive') {
+    if(r.lastResponseDate) fields.push(['Last Response', r.lastResponseDate]);
+  }
+  if (r.status==='Failed') {
+    if(r.failReason) fields.push(['Fail Reason', r.failReason]);
+  }
+  if (r.status==='Back to Training') {
+    if(r.backToTrainingStep) fields.push(['Next Step', r.backToTrainingStep]);
+    if(r.backToTrainingDate) fields.push(['Resume Date', r.backToTrainingDate]);
+  }
+  if (r.status==='Disqualified') {
+    if(r.disqualifyReason) fields.push(['Disqualify Reason', r.disqualifyReason]);
+  }
+  if(r.notes) fields.push(['Notes', r.notes]);
+
+  // Timeline from remarks
+  const timelineItems = r.remarks ? r.remarks.split('\n').filter(Boolean).map(line=>`
+    <div class="tl-item">
+      <div class="tl-spine"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-body"><div class="tl-text">${line}</div></div>
+    </div>`) : [];
+
+  const isAdmin = currentUser?.role === 'admin';
+  const isPending = r.approvalStatus === 'Pending';
+
+  document.getElementById('fu-detail').innerHTML = `
+    <div class="detail-hdr">
+      <div>
+        <div class="detail-teacher">${r.teacherName} ${isEscalated?'<span class="badge flag-badge" style="font-size:11px;">🚨 Escalated</span>':''}</div>
+        <div class="detail-id">${r.id}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+        ${statusBadge(r.status)}
+        ${approvalBadge(r.approvalStatus)}
+      </div>
+    </div>
+    <div class="detail-meta-grid">
+      ${fields.map(([k,v])=>`<div><div class="dm-label">${k}</div><div class="dm-value">${v||'—'}</div></div>`).join('')}
+    </div>
+    ${isAdmin && isPending ? `<div class="action-row">
+      <button class="btn btn-green btn-sm" onclick="openApprove('${r.id}')">✅ Approve</button>
+      <button class="btn btn-red btn-sm" onclick="openReject('${r.id}')">❌ Reject</button>
+      <button class="btn btn-blue btn-sm" onclick="openQuery('${r.id}')">💬 Query</button>
+    </div>` : ''}
+    <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Timeline</div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-spine"><div class="tl-dot" style="background:var(--blue)"></div><div class="tl-line"></div></div>
+        <div class="tl-body"><div class="tl-meta">${r.submittedAt}</div><div class="tl-text">📝 Request submitted by ${r.submittedBy} — Status: <strong>${r.status}</strong></div></div>
+      </div>
+      ${timelineItems.join('')}
+    </div>
+    <div class="remark-form">
+      <div class="remark-form-title">Add Remark</div>
+      <button class="btn btn-ghost btn-sm" onclick="openRemark('${r.id}')">+ Add Follow-up Note</button>
+    </div>`;
+}
+
+// ── MODALS ────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+let actionReqId = null;
+
+function openApprove(id) {
+  actionReqId = id;
+  const r = allRequests.find(x=>x.id===id);
+  document.getElementById('approve-req-id').textContent = `${r?.teacherName} — ${id}`;
+  document.getElementById('approve-note').value = '';
+  openModal('modal-approve');
+}
+async function confirmApprove() {
+  if (!actionReqId) return;
+  setLoading(true);
+  closeModal('modal-approve');
+  if (API_URL === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+    const r = allRequests.find(x=>x.id===actionReqId);
+    if(r){ r.approvalStatus='Approved'; r.approvedBy=currentUser.username; }
+    renderAll(); showToast('Request approved ✅','success'); setLoading(false); return;
+  }
+  try {
+    const res = await apiPost({ action:'approveRequest', data:{ id:actionReqId, approvedBy:currentUser.username, note:document.getElementById('approve-note').value } });
+    if (res.success) { showToast('Request approved ✅','success'); loadAll(); }
+    else showToast(res.error||'Error','error');
+  } catch(e) { showToast('Connection error','error'); }
+  setLoading(false);
+}
+
+function openReject(id) {
+  actionReqId = id;
+  const r = allRequests.find(x=>x.id===id);
+  document.getElementById('reject-req-id').textContent = `${r?.teacherName} — ${id}`;
+  document.getElementById('reject-reason').value = '';
+  openModal('modal-reject');
+}
+async function confirmReject() {
+  const reason = document.getElementById('reject-reason').value.trim();
+  if (!reason) { showToast('Please provide a rejection reason','error'); return; }
+  closeModal('modal-reject');
+  setLoading(true);
+  if (API_URL === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+    const r = allRequests.find(x=>x.id===actionReqId);
+    if(r){ r.approvalStatus='Rejected'; r.rejectedBy=currentUser.username; }
+    renderAll(); showToast('Request rejected','error'); setLoading(false); return;
+  }
+  try {
+    const res = await apiPost({ action:'rejectRequest', data:{ id:actionReqId, rejectedBy:currentUser.username, reason } });
+    if (res.success) { showToast('Request rejected','error'); loadAll(); }
+    else showToast(res.error||'Error','error');
+  } catch(e) { showToast('Connection error','error'); }
+  setLoading(false);
+}
+
+function openQuery(id) {
+  actionReqId = id;
+  const r = allRequests.find(x=>x.id===id);
+  document.getElementById('query-req-id').textContent = `${r?.teacherName} — ${id}`;
+  document.getElementById('query-question').value = '';
+  openModal('modal-query');
+}
+async function confirmQuery() {
+  const q = document.getElementById('query-question').value.trim();
+  if (!q) { showToast('Please enter your question','error'); return; }
+  closeModal('modal-query');
+  setLoading(true);
+  if (API_URL === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+    const r = allRequests.find(x=>x.id===actionReqId);
+    if(r){ r.approvalStatus='Needs Clarification'; }
+    renderAll(); showToast('Query sent 💬','info'); setLoading(false); return;
+  }
+  try {
+    const res = await apiPost({ action:'queryRequest', data:{ id:actionReqId, by:currentUser.username, question:q } });
+    if (res.success) { showToast('Query sent 💬','info'); loadAll(); }
+    else showToast(res.error||'Error','error');
+  } catch(e) { showToast('Connection error','error'); }
+  setLoading(false);
+}
+
+function openRemark(id) {
+  actionReqId = id;
+  const r = allRequests.find(x=>x.id===id);
+  document.getElementById('remark-req-id').textContent = `${r?.teacherName} — ${id}`;
+  document.getElementById('remark-text').value = '';
+  openModal('modal-remark');
+}
+async function confirmRemark() {
+  const remark = document.getElementById('remark-text').value.trim();
+  if (!remark) { showToast('Please enter a remark','error'); return; }
+  closeModal('modal-remark');
+  setLoading(true);
+  if (API_URL === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+    const r = allRequests.find(x=>x.id===actionReqId);
+    if(r){ const ts=new Date().toLocaleString(); r.remarks=(r.remarks?r.remarks+'\n':'')+'['+ts+' — '+currentUser.username+']: '+remark; }
+    renderAll(); showToast('Remark added','success'); setLoading(false); return;
+  }
+  try {
+    const res = await apiPost({ action:'addRemark', data:{ id:actionReqId, by:currentUser.username, remark } });
+    if (res.success) { showToast('Remark added','success'); loadAll(); if(selectedReqId) openDetail(selectedReqId); }
+    else showToast(res.error||'Error','error');
+  } catch(e) { showToast('Connection error','error'); }
+  setLoading(false);
+}
+
+function renderAll() {
+  renderDashboard();
+  renderRequestsTable();
+  renderFollowupList();
+  updatePendingBadge();
+  if (selectedReqId) openDetail(selectedReqId);
+}
+
+// ── FORM ─────────────────────────────────────────────
+async function lookupTeacher() {
+  const mobile = document.getElementById('f-mobile').value.trim();
+  const errEl  = document.getElementById('lookup-error');
+  const resEl  = document.getElementById('lookup-result');
+  errEl.style.display = 'none';
+  resEl.classList.add('hidden');
+  lookupTeacherData = null;
+
+  if (mobile.length !== 10) { errEl.textContent='Please enter a complete 10-digit mobile number.'; errEl.style.display='block'; return; }
+
+  if (API_URL === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+    // Demo lookup
+    const demo = { '8120467335':{dbid:'164f6a74',name:'Aliya Khan',mobile:'8120467335',email:'aliyasrkhan786@gmail.com',mentor:'Manesha'}, '8072397639':{dbid:'d17dc976',name:'Sankar',mobile:'8072397639',email:'sethusankar@yahoo.com',mentor:'Jayageetha'} };
+    const found = demo[mobile];
+    if (found) { populateLookup(found); }
+    else { errEl.textContent='Mobile number not registered. Please provide a valid 10-digit registered mobile number.'; errEl.style.display='block'; }
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const res = await apiPost({ action:'lookupMobile', mobile });
+    if (res.success) { populateLookup(res.teacher); }
+    else { errEl.textContent=res.error||'Not found'; errEl.style.display='block'; }
+  } catch(e) { errEl.textContent='Connection error'; errEl.style.display='block'; }
+  setLoading(false);
+}
+
+function populateLookup(t) {
+  lookupTeacherData = t;
+  document.getElementById('lf-name').textContent  = t.name;
+  document.getElementById('lf-dbid').textContent  = t.dbid;
+  document.getElementById('lf-email').textContent = t.email;
+  document.getElementById('lf-mentor').textContent= t.mentor;
+  document.getElementById('lookup-result').classList.remove('hidden');
+  // Auto-fill mentor if user is mentor
+  if (currentUser?.role==='mentor') document.getElementById('f-submittedby').value = currentUser.username;
+}
+
+let selectedStatus = '';
+function selectStatus(s, el) {
+  document.querySelectorAll('.status-opt').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedStatus = s;
+  document.getElementById('step3-next').disabled = false;
+}
+
+function goStep(step) {
+  // Validate
+  if (step === 2 && !lookupTeacherData) { showToast('Please search a valid mobile number first','error'); return; }
+  if (step === 3 && !document.getElementById('f-stage').value) { showToast('Please select a training stage','error'); return; }
+  if (step === 4 && !selectedStatus) { showToast('Please select a status','error'); return; }
+  if (step === 5) {
+    if (!validateStep4()) return;
+    buildReview();
+  }
+
+  currentStep = step;
+  for (let i=1;i<=5;i++) {
+    document.getElementById('form-step-'+i).classList.toggle('hidden', i!==step);
+    const sc = document.getElementById('sc-'+i);
+    if(sc) { sc.classList.toggle('active',i===step); sc.classList.toggle('done',i<step); if(i<step)sc.textContent='✓'; else sc.textContent=i; }
+    const sl = document.getElementById('sl-'+i);
+    if(sl) sl.classList.toggle('done',i<step);
+  }
+
+  // Show correct conditional block
+  if (step===4) {
+    ['pause','back','resign','nonresp','failed','disq'].forEach(c=>document.getElementById('cond-'+c).classList.remove('visible'));
+    const map = {'On Pause':'pause','Back to Training':'back','Resigned':'resign','Non-Responsive':'nonresp','Failed':'failed','Disqualified':'disq'};
+    if (map[selectedStatus]) document.getElementById('cond-'+map[selectedStatus]).classList.add('visible');
+  }
+}
+
+function validateStep4() {
+  const s = selectedStatus;
+  if (s==='On Pause') {
+    if (!document.getElementById('f-pause-start').value) { showToast('Pause start date required','error'); return false; }
+    if (!document.getElementById('f-pause-resume').value) { showToast('Resume date required','error'); return false; }
+    if (!document.getElementById('f-pause-reason').value.trim()) { showToast('Pause reason required','error'); return false; }
+    if (!document.getElementById('f-email-confirmed').value) { showToast('Email confirmation required','error'); return false; }
+  }
+  if (s==='Back to Training') {
+    if (!document.getElementById('f-back-step').value) { showToast('Next training step required','error'); return false; }
+    if (!document.getElementById('f-back-date').value) { showToast('Resume date required','error'); return false; }
+  }
+  if (s==='Resigned') {
+    if (!document.getElementById('f-resign-reason').value.trim()) { showToast('Resignation reason required','error'); return false; }
+  }
+  if (s==='Non-Responsive') {
+    if (!document.getElementById('f-lastresponse').value) { showToast('Last response date required','error'); return false; }
+  }
+  if (s==='Failed') {
+    if (!document.getElementById('f-fail-reason').value) { showToast('Failure reason required','error'); return false; }
+  }
+  if (s==='Disqualified') {
+    if (!document.getElementById('f-disq-reason').value.trim()) { showToast('Disqualification reason required','error'); return false; }
+  }
+  return true;
+}
+
+function buildReview() {
+  const t = lookupTeacherData;
+  const s = selectedStatus;
+  const rows = [
+    ['Teacher', t.name], ['Mobile', t.mobile], ['Email', t.email],
+    ['Mentor', t.mentor], ['Training Stage', document.getElementById('f-stage').value],
+    ['Submitted By', document.getElementById('f-submittedby').value],
+    ['Status', s],
+  ];
+  if(s==='On Pause'){
+    rows.push(['Pause Start', document.getElementById('f-pause-start').value]);
+    rows.push(['Resume Date', document.getElementById('f-pause-resume').value]);
+    rows.push(['Reason', document.getElementById('f-pause-reason').value]);
+    rows.push(['Email Confirmed', document.getElementById('f-email-confirmed').value]);
+  }
+  if(s==='Back to Training'){
+    rows.push(['Next Step', document.getElementById('f-back-step').value]);
+    rows.push(['Resume Date', document.getElementById('f-back-date').value]);
+  }
+  if(s==='Resigned') rows.push(['Reason', document.getElementById('f-resign-reason').value]);
+  if(s==='Non-Responsive') rows.push(['Last Response', document.getElementById('f-lastresponse').value]);
+  if(s==='Failed') rows.push(['Fail Reason', document.getElementById('f-fail-reason').value]);
+  if(s==='Disqualified') rows.push(['Reason', document.getElementById('f-disq-reason').value]);
+  const notes = document.getElementById('f-notes').value;
+  if(notes) rows.push(['Notes', notes]);
+
+  document.getElementById('review-content').innerHTML = rows.map(([k,v])=>`
+    <div class="review-row"><div class="review-key">${k}</div><div class="review-val">${v||'—'}</div></div>`).join('');
+}
+
+async function submitForm() {
+  const t = lookupTeacherData;
+  const s = selectedStatus;
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  const data = {
+    dbid: t.dbid, teacherName: t.name, mobile: t.mobile, email: t.email,
+    mentorName: t.mentor, submittedBy: document.getElementById('f-submittedby').value,
+    trainingStage: document.getElementById('f-stage').value,
+    status: s,
+    pauseStartDate:   s==='On Pause'?document.getElementById('f-pause-start').value:'',
+    pauseReason:      s==='On Pause'?document.getElementById('f-pause-reason').value:'',
+    resumeDate:       s==='On Pause'?document.getElementById('f-pause-resume').value:'',
+    emailConfirmed:   s==='On Pause'?document.getElementById('f-email-confirmed').value:'',
+    resignReason:     s==='Resigned'?document.getElementById('f-resign-reason').value:'',
+    lastResponseDate: s==='Non-Responsive'?document.getElementById('f-lastresponse').value:'',
+    failReason:       s==='Failed'?document.getElementById('f-fail-reason').value:'',
+    disqualifyReason: s==='Disqualified'?document.getElementById('f-disq-reason').value:'',
+    backToTrainingStep: s==='Back to Training'?document.getElementById('f-back-step').value:'',
+    backToTrainingDate: s==='Back to Training'?document.getElementById('f-back-date').value:'',
+    notes: document.getElementById('f-notes').value,
+  };
+
+  if (API_URL === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+    const newId = 'REQ-' + String(allRequests.length+1).padStart(4,'0');
+    allRequests.push({ id:newId, submittedAt:new Date().toLocaleString(), ...data, approvalStatus:'Pending', remarks:'' });
+    document.getElementById('success-id').textContent = newId;
+    document.getElementById('form-step-5').classList.add('hidden');
+    document.getElementById('form-success').classList.remove('hidden');
+    renderAll();
+    btn.disabled=false; btn.textContent='✓ Submit Request';
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const res = await apiPost({ action:'submitRequest', data });
+    if (res.success) {
+      document.getElementById('success-id').textContent = res.id;
+      document.getElementById('form-step-5').classList.add('hidden');
+      document.getElementById('form-success').classList.remove('hidden');
+      loadAll();
+    } else { showToast(res.error||'Submit failed','error'); }
+  } catch(e) { showToast('Connection error','error'); }
+  setLoading(false);
+  btn.disabled=false; btn.textContent='✓ Submit Request';
+}
+
+function resetForm() {
+  currentStep=1; selectedStatus=''; lookupTeacherData=null;
+  document.getElementById('f-mobile').value='';
+  document.getElementById('lookup-result').classList.add('hidden');
+  document.getElementById('lookup-error').style.display='none';
+  document.getElementById('f-stage').value='';
+  document.querySelectorAll('.status-opt').forEach(o=>o.classList.remove('selected'));
+  document.getElementById('step3-next').disabled=true;
+  document.getElementById('f-notes').value='';
+  for(let i=1;i<=5;i++){
+    const el=document.getElementById('form-step-'+i);
+    if(el)el.classList.toggle('hidden',i!==1);
+    const sc=document.getElementById('sc-'+i);
+    if(sc){sc.classList.remove('active','done');sc.textContent=i;if(i===1)sc.classList.add('active');}
+    const sl=document.getElementById('sl-'+i);
+    if(sl)sl.classList.remove('done');
+  }
+  document.getElementById('form-success').classList.add('hidden');
+}
+
+// ── ADMIN ─────────────────────────────────────────────
+async function loadAdminPanel() {
+  if (API_URL === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+    document.getElementById('users-tbody').innerHTML = `
+      <tr><td style="padding:10px 12px;font-size:13px;">admin</td><td style="padding:10px 12px"><span class="badge badge-approved">Admin</span></td></tr>
+      <tr><td style="padding:10px 12px;font-size:13px;">mentor1</td><td style="padding:10px 12px"><span class="badge badge-pending">Mentor</span></td></tr>`;
+    document.getElementById('admin-quick-stats').innerHTML = Object.entries(currentStats.byStatus||{}).map(([k,v])=>`<div class="review-row"><div class="review-key">${k}</div><div class="review-val">${v}</div></div>`).join('');
+    return;
+  }
+  try {
+    const res = await apiPost({action:'getUsers'});
+    if(res.success) {
+      document.getElementById('users-tbody').innerHTML = res.data.map(u=>`
+        <tr><td style="padding:10px 12px;font-size:13px;">${u.username}</td>
+        <td style="padding:10px 12px"><span class="badge ${u.role==='admin'?'badge-approved':'badge-pending'}">${u.role}</span></td></tr>`).join('');
+    }
+  } catch(e){}
+  document.getElementById('admin-quick-stats').innerHTML = Object.entries(currentStats.byStatus||{}).map(([k,v])=>`<div class="review-row"><div class="review-key">${k}</div><div class="review-val">${v}</div></div>`).join('');
+}
+
+function openAddUser() { openModal('modal-adduser'); }
+async function saveUser() {
+  const username = document.getElementById('new-username').value.trim();
+  const password = document.getElementById('new-password').value.trim();
+  const role     = document.getElementById('new-role').value;
+  const mentor   = document.getElementById('new-mentorname').value.trim();
+  if (!username||!password){ showToast('Username and password required','error'); return; }
+  closeModal('modal-adduser');
+  if(API_URL==='YOUR_APPS_SCRIPT_WEB_APP_URL_HERE'){ showToast('User added (demo)','success'); return; }
+  try {
+    const res = await apiPost({action:'addUser',data:{username,password,role,mentorName:mentor}});
+    if(res.success){ showToast('User added ✅','success'); loadAdminPanel(); }
+    else showToast(res.error||'Error','error');
+  } catch(e){ showToast('Connection error','error'); }
+}
+
+// ── EXPORT CSV ───────────────────────────────────────
+function exportCSV() {
+  const headers=['RequestID','Teacher','Mobile','Email','Mentor','Stage','Status','Approval','SubmittedBy','SubmittedAt','ApprovedBy','RejectedBy','Notes'];
+  const rows = allRequests.map(r=>[r.id,r.teacherName,r.mobile,r.email,r.mentorName,r.trainingStage,r.status,r.approvalStatus,r.submittedBy,r.submittedAt,r.approvedBy||'',r.rejectedBy||'',r.notes||''].map(v=>`"${String(v||'').replace(/"/g,'""')}"`));
+  const csv = [headers,...rows].map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='cuemath_training_requests_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+}
+
+// ── CLOSE OVERLAY ON BG CLICK ───────────────────────
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');}));
+</script>
+</body>
+</html>
